@@ -27,9 +27,9 @@ export const createToDo = async(req: Request, res: Response) => {
     const {title, description, completed} = req.body;
     const newTodo = new Todo({ title, description, completed});
     try {
-        if(title == "" || description == "") {
-            console.error('Field is required');
-            return;
+        if(!title || !description) {
+            console.log('Field is required');
+            return res.status(400).json({ message: 'Title and description are required' });
         }
         await newTodo.save();
         res.status(200).redirect('/api/todos');
