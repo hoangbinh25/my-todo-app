@@ -34,11 +34,9 @@ let mongoServer: MongoMemoryServer;
 // });
 
 
-
-// afterEach(async () => {
-//   await Todo.deleteMany({});
-// });
-
+beforeEach(async () => {
+  await Todo.deleteMany({});
+});
 describe('POST /api/todos/create', () => {
   it('should create a new todo', async () => {
     const newTodo = {

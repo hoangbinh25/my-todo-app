@@ -32,11 +32,11 @@ export const createToDo = async(req: Request, res: Response) => {
             return res.status(400).json({ message: 'Title and description are required' });
         }
         await newTodo.save();
-        res.status(200).redirect('/api/todos');
+        return res.status(200).redirect('/api/todos');
 
     } catch (error: any) {
         console.error(`Create a new todo failed: ${error.message}`);
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message: error.message});
     }
 }
 
