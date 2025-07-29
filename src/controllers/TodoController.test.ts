@@ -1,42 +1,31 @@
-import request from 'supertest';
 import mongoose from 'mongoose';
+import request from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import app from '../app';
 import Todo from '../models/Todo';
 
 let mongoServer: MongoMemoryServer;
 
-// beforeAll(async () => {
-//     mongoServer = await MongoMemoryServer.create();
-//     const uri = mongoServer.getUri();
-//     await mongoose.connect(uri);
-// });
+beforeAll(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
 
-// afterEach(async() => {
-//     await Todo.deleteMany({});
-// });
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect(); // tránh double connection
+  }
 
-
-// afterAll(async () => {
-//   await mongoose.disconnect();
-//   await mongoServer.stop();
-// });
-
-// describe('GET /api/todos', () => {
-//   it('should return all todos', async () => {
-//     await Todo.create({ title: 'Test 1', description: 'Desc 1', completed: false });
-
-//     const res = await request(app).get('/api/todos');
-
-//     expect(res.statusCode).toBe(200);
-//     expect(res.text).toContain('Test 1'); 
-//   });
-// });
-
+  await mongoose.connect(uri);
+}, 20000); // ⏱ đủ thời gian khởi tạo MongoDB trong CI
 
 beforeEach(async () => {
   await Todo.deleteMany({});
+}, 10000); // tránh timeout khi xóa dữ liệu chậm
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  if (mongoServer) await mongoServer.stop();
 });
+
 describe('POST /api/todos/create', () => {
   it('should create a new todo', async () => {
     const newTodo = {
@@ -55,11 +44,11 @@ describe('POST /api/todos/create', () => {
     expect(todosInDb[0].title).toBe('New Task');
   });
 
-  it('should return 500 if required fields are missing', async () => {
+  it('should return 400 if required fields are missing', async () => {
     const response = await request(app)
       .post('/api/todos/create')
       .send({ title: '', description: '', completed: false });
 
-  expect(response.statusCode).toBe(400);
-  }, 5000);
+    expect(response.statusCode).toBe(400);
+  });
 });
