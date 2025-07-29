@@ -35,9 +35,9 @@ let mongoServer: MongoMemoryServer;
 
 
 
-afterEach(async () => {
-  await Todo.deleteMany({});
-});
+// afterEach(async () => {
+//   await Todo.deleteMany({});
+// });
 
 describe('POST /api/todos/create', () => {
   it('should create a new todo', async () => {
@@ -62,7 +62,6 @@ describe('POST /api/todos/create', () => {
       .post('/api/todos/create')
       .send({ title: '', description: '', completed: false });
 
-    
   expect(response.statusCode).toBe(400);
   }, 5000);
 });
